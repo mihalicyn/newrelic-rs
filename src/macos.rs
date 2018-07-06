@@ -12,6 +12,14 @@ pub fn transaction_begin() -> Result<i64, ()> {
     Ok(0)
 }
 
+/// Identify an error that occurred during the transaction. The first identified
+/// error is sent with each transaction.
+///
+/// Must be called after `transaction_begin()` and before `transaction_end()`.
+pub fn transaction_notice_error(transaction_id: i64, exception_type: &str, error_message: &str, stack_trace: &str, stack_frame_delimiter: &str) -> Result<(), ()> {
+	Ok(())
+}
+
 /// Set a name for the transaction
 ///
 /// Must be called after `transaction_begin()` and before `transaction_end()`.

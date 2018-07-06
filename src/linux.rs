@@ -11,6 +11,7 @@ mod ffi {
         pub fn newrelic_register_message_handler(handler: unsafe extern fn(*mut c_void) -> *mut c_void);
         pub fn newrelic_message_handler(raw_message: *mut c_void) -> *mut c_void;
         pub fn newrelic_transaction_begin() -> c_long;
+        pub fn newrelic_transaction_notice_error(transaction_id: c_long, exception_type: *const c_char, error_message: *const c_char, stack_trace: *const c_char, stack_frame_delimiter: *const c_char) -> c_int;
         pub fn newrelic_transaction_set_name(transaction_id: c_long, name: *const c_char) -> c_int;
         pub fn newrelic_transaction_end(transaction_id: c_long) -> c_int;
         pub fn newrelic_segment_generic_begin(transaction_id: c_long, parent_segment_id: c_long, name: *const c_char) -> c_long;
@@ -40,6 +41,25 @@ pub fn transaction_begin() -> Result<i64, ()> {
 
     match transaction_id {
         id if id > 0 => Ok(id),
+        _ => Err(()),
+    }
+}
+
+/// Identify an error that occurred during the transaction. The first identified
+/// error is sent with each transaction.
+///
+/// Must be called after `transaction_begin()` and before `transaction_end()`.
+pub fn transaction_notice_error(transaction_id: i64, exception_type: &str, error_message: &str, stack_trace: &str, stack_frame_delimiter: &str) -> Result<(), ()> {
+    let exception_type = CString::new(exception_type).unwrap();
+    let error_message = CString::new(error_message).unwrap();
+    let stack_trace = CString::new(stack_trace).unwrap();
+    let stack_frame_delimiter = CString::new(stack_frame_delimiter).unwrap();
+    let rc = unsafe {
+        ffi::newrelic_transaction_notice_error(transaction_id, exception_type.as_ptr(), error_message.as_ptr(), stack_trace.as_ptr(), stack_frame_delimiter.as_ptr())
+    };
+
+    match rc {
+        0 => Ok(()),
         _ => Err(()),
     }
 }

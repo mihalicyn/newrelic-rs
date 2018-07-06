@@ -8,6 +8,7 @@ mod linux;
 pub use self::linux::{
     init,
     transaction_begin,
+    transaction_notice_error,
     transaction_set_name,
     transaction_end,
     segment_generic_begin,
@@ -22,6 +23,7 @@ mod macos;
 pub use self::macos::{
     init,
     transaction_begin,
+    transaction_notice_error,
     transaction_set_name,
     transaction_end,
     segment_generic_begin,
